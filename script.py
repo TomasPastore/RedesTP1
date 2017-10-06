@@ -3,6 +3,7 @@
 import sys
 import numpy as np
 import math as mat
+from tabulate import tabulate
 
 if len(sys.argv) != 3 :
 	print "Uso: python script.py pcapFile modeloAUtilizar(0/1)\n Donde modeloAUtilizar es 0 si no se distinguen los host y 1 en caso contrario. "
@@ -103,22 +104,32 @@ if __name__ == "__main__":
 	
 	#Impresiones
 	print "Size de la muestra: " + str(totalDePaquetes)
-	print "Probabilidades por simbolo " 
-	print probabilidadesSimbolos
+	# print "Probabilidades por simbolo " 
+	# print probabilidadesSimbolos
 	
-	#print "Simbolos"
-	#print simbolos
-	#print contadoresDeSimbolos
-	assert(len(simbolos)== len(probabilidadesSimbolos))
+	# #print "Simbolos"
+	# #print simbolos
+	# #print contadoresDeSimbolos
+	# assert(len(simbolos)== len(probabilidadesSimbolos))
 
 
 	informacionXSimbolo = informacionPorSimbolo(simbolos, probabilidadesSimbolos)
-	print "INFORMACION POR SIMBOLO"
-	print informacionXSimbolo
+	# print "INFORMACION POR SIMBOLO"
+	# print informacionXSimbolo
 
 	entropiaMuestral = entropia(probabilidadesSimbolos)	
 	print "Entropia muestral: "
 	print entropiaMuestral
-
-
+	print "Entropia Maxima: "
+	entropiaMaxima = 0
+	for i in range(0, len(informacionXSimbolo)): 
+		if informacionXSimbolo[i][1] > entropiaMaxima:
+			entropiaMaxima = informacionXSimbolo[i][1]
+	print entropiaMaxima
+	# Imprime tabla a partir de los datos de 
+	# una lista de listas:
+	tabla = []
+	for i in range(0, len(informacionXSimbolo)): 
+		tabla.append([informacionXSimbolo[i][0],probabilidadesSimbolos[i][0],informacionXSimbolo[i][1]])
+	print(tabulate(tabla, headers=['Simbolo', 'Probabilidad', 'Informacion']))
 
