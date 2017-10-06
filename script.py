@@ -1,13 +1,10 @@
 #! /usr/bin/env python
+#For Python, this file uses encoding: utf-8
 
 import sys
 import numpy as np
 import math as mat
 from tabulate import tabulate
-
-if len(sys.argv) != 3 :
-	print "Uso: python script.py pcapFile modeloAUtilizar(0/1)\n Donde modeloAUtilizar es 0 si no se distinguen los host y 1 en caso contrario. "
-	sys.exit()
 
 def esBroadcast(packet):
 	return packet.dst == "ff:ff:ff:ff:ff:ff"
@@ -19,6 +16,7 @@ def pertenece(string, list):
 
 	return False
 
+#¿Realmente hace falta usar esto? .-.
 def hacerTupla(first, second):
 	return (first,second)
 
@@ -29,45 +27,41 @@ def indiceDeSimbolo(simbolo, simbolos):
 			return i
 
 #entran < proba, simbolo >
-def entropia( listaProbabilidadesPorSimbolo ):
+def entropia( probaPorSimbolo ):
 	res = 0
-	for s in listaProbabilidadesPorSimbolo:
-		res -= s[0] * mat.log( s[0], 2)
-
+	for s,p in probaPorSimbolo.items():
+		res -= p * mat.log( p, 2)
 	return res	 
 
-def informacionPorSimbolo(simbolos, listaProbabilidadesPorSimbolo):
-	res = []
-	for i in range (0, len(simbolos)):
-		informacion = (-1) * mat.log( listaProbabilidadesPorSimbolo[i][0], 2)
-		res.append( hacerTupla(simbolos[i], informacion) )
+def informacionPorSimbolo(probaPorSimbolo):
+	res = {}
+	for simbolo,probabilidad in probaPorSimbolo.items():
+		informacion = (-1) * mat.log( probabilidad, 2)
+		res[simbolo] = informacion
 	return res
 
 from scapy.all import *
 
-if __name__ == "__main__":
-
+def main(archivo,modeloAUtilizar):
 	print "Leyendo archivo..."
-	pcapFile = rdpcap( sys.argv[1] )
-	modeloAUtilizar = sys.argv[2]
-	totalDePaquetes = 0
+	pcapFile = rdpcap( archivo )
+	totalDePaquetes = len(pcapFile)
 	broadcastCount = 0
 	unicastCount = 0
-	protocolos = []
-	simbolosPosibles = []
+	protocolos = set()
+	simbolosPosibles = set()
 	#horrible pero bue, 50 tienen que alcanzar
-	contadoresDeSimbolos = np.zeros(50)
+	contadorDeSimbolos = {}
 	 
 	broadcast = "BROADCAST"
 	unicast = "UNICAST"
 
 	print "Analizando la fuente..."
 
-	if (modeloAUtilizar == "0"):
-		
+	if (modeloAUtilizar == 0):
+
 		for packet in pcapFile:
 
-			totalDePaquetes += 1
 			primerComponente = ""
 			protocolo = packet.payload.name
 
@@ -78,58 +72,52 @@ if __name__ == "__main__":
 				unicastCount += 1
 				primerComponente = unicast
 
-			if not pertenece(protocolo, protocolos):
-				#print("entro alguna vez al if not")
-				protocolos.append(protocolo) 
-				simbolosPosibles.append( hacerTupla(broadcast, protocolo) )
-				simbolosPosibles.append( hacerTupla(unicast, protocolo) )
+			protocolos.add(protocolo) 
+			simbolosPosibles.add( (broadcast, protocolo) )
+			simbolosPosibles.add( (unicast, protocolo) )
 
-			simbolo = hacerTupla(primerComponente, protocolo)
-			contadoresDeSimbolos[indiceDeSimbolo(simbolo, simbolosPosibles)] += 1
+			simbolo = (primerComponente, protocolo)
+			
+			if simbolo in contadorDeSimbolos:
+				contadorDeSimbolos[simbolo] += 1
+			else:
+				contadorDeSimbolos[simbolo] = 1
 	else: 
 		pass	
 		#TODO modelo que distingue por ARP.dst, creo que es solo filtrar los ARP y hacer: packet.payload.dst
 
+	probaPorSimbolo = dict((key, float(value)/totalDePaquetes) for (key,value) in contadorDeSimbolos.items())
 
-	#Filtro los que no tienen proba 0 
-	simbolos = []
-	probabilidadesSimbolos = []
-	for i in range(0, len(simbolosPosibles)): 
-		
-		if contadoresDeSimbolos[i] != 0 :
-			simbolos.append(simbolosPosibles[i])
-			probaSimbolo = contadoresDeSimbolos[i] / totalDePaquetes
-			probabilidadesSimbolos.append( hacerTupla(probaSimbolo, simbolosPosibles[i]) )
-
+	#No sé si los que tienen proba 0 tendrán que figurar o no... Decidamos (?)
 	
 	#Impresiones
 	print "Size de la muestra: " + str(totalDePaquetes)
-	# print "Probabilidades por simbolo " 
-	# print probabilidadesSimbolos
+
+	informacionXSimbolo = informacionPorSimbolo(probaPorSimbolo)
+
+	entropiaMuestral = entropia(probaPorSimbolo)	
 	
-	# #print "Simbolos"
-	# #print simbolos
-	# #print contadoresDeSimbolos
-	# assert(len(simbolos)== len(probabilidadesSimbolos))
-
-
-	informacionXSimbolo = informacionPorSimbolo(simbolos, probabilidadesSimbolos)
-	# print "INFORMACION POR SIMBOLO"
-	# print informacionXSimbolo
-
-	entropiaMuestral = entropia(probabilidadesSimbolos)	
 	print "Entropia muestral: "
-	print entropiaMuestral
+	print "\t\t",entropiaMuestral
 	print "Entropia Maxima: "
-	entropiaMaxima = 0
-	for i in range(0, len(informacionXSimbolo)): 
-		if informacionXSimbolo[i][1] > entropiaMaxima:
-			entropiaMaxima = informacionXSimbolo[i][1]
-	print entropiaMaxima
+	entropiaMaxima = mat.log (len(contadorDeSimbolos),2)
+
+	# for i in range(0, len(informacionXSimbolo)): 
+	# 	if informacionXSimbolo[i][1] > entropiaMaxima:
+	# 		entropiaMaxima = informacionXSimbolo[i][1]
+	
+	print "\t\t",entropiaMaxima
 	# Imprime tabla a partir de los datos de 
 	# una lista de listas:
 	tabla = []
-	for i in range(0, len(informacionXSimbolo)): 
-		tabla.append([informacionXSimbolo[i][0],probabilidadesSimbolos[i][0],informacionXSimbolo[i][1]])
+	for s,p in probaPorSimbolo.items(): 
+		tabla.append([s,p,informacionXSimbolo[s]])
+	
 	print(tabulate(tabla, headers=['Simbolo', 'Probabilidad', 'Informacion']))
 
+if __name__ == '__main__':
+	if len(sys.argv) != 3 :
+		print "Uso: python script.py pcapFile modeloAUtilizar(0/1)\n Donde modeloAUtilizar es 0 si no se distinguen los host y 1 en caso contrario. "
+		sys.exit()
+	else:
+		main(sys.argv[1],int(sys.argv[2]))
