@@ -4,10 +4,6 @@ import sys
 import numpy as np
 import math as mat
 
-if len(sys.argv) != 3 :
-	print "Uso: python script.py pcapFile modeloAUtilizar(0/1)\n Donde modeloAUtilizar es 0 si no se distinguen los host y 1 en caso contrario. "
-	sys.exit()
-
 def esBroadcast(packet):
 	return packet.dst == "ff:ff:ff:ff:ff:ff"
 
@@ -44,8 +40,7 @@ def informacionPorSimbolo(simbolos, listaProbabilidadesPorSimbolo):
 
 from scapy.all import *
 
-if __name__ == "__main__":
-
+def main(archivo,modelo):
 	print "Leyendo archivo..."
 	pcapFile = rdpcap( sys.argv[1] )
 	modeloAUtilizar = sys.argv[2]
@@ -55,14 +50,14 @@ if __name__ == "__main__":
 	protocolos = []
 	simbolosPosibles = []
 	#horrible pero bue, 50 tienen que alcanzar
-	contadoresDeSimbolos = np.zeros(50)
+	contadorDeSimbolos = {}
 	 
 	broadcast = "BROADCAST"
 	unicast = "UNICAST"
 
 	print "Analizando la fuente..."
 
-	if (modeloAUtilizar == "0"):
+	if (modeloAUtilizar == 0):
 		
 		for packet in pcapFile:
 
@@ -84,7 +79,11 @@ if __name__ == "__main__":
 				simbolosPosibles.append( hacerTupla(unicast, protocolo) )
 
 			simbolo = hacerTupla(primerComponente, protocolo)
-			contadoresDeSimbolos[indiceDeSimbolo(simbolo, simbolosPosibles)] += 1
+			
+			if simbolo in contadorDeSimbolos:
+				contadorDeSimbolos[simbolo] += 1
+			else:
+				contadorDeSimbolos[simbolo] = 1
 	else: 
 		pass	
 		#TODO modelo que distingue por ARP.dst, creo que es solo filtrar los ARP y hacer: packet.payload.dst
@@ -93,9 +92,9 @@ if __name__ == "__main__":
 	#Filtro los que no tienen proba 0 
 	simbolos = []
 	probabilidadesSimbolos = []
-	for i in range(0, len(simbolosPosibles)): 
+	for t in simbolosPosibles: 
 		
-		if contadoresDeSimbolos[i] != 0 :
+		if contadoresDeSimbolos[t] != 0 :
 			simbolos.append(simbolosPosibles[i])
 			probaSimbolo = contadoresDeSimbolos[i] / totalDePaquetes
 			probabilidadesSimbolos.append( hacerTupla(probaSimbolo, simbolosPosibles[i]) )
@@ -121,4 +120,9 @@ if __name__ == "__main__":
 	print entropiaMuestral
 
 
-
+if __name__ == '__main__':
+	if len(sys.argv) != 3 :
+		print "Uso: python script.py pcapFile modeloAUtilizar(0/1)\n Donde modeloAUtilizar es 0 si no se distinguen los host y 1 en caso contrario. "
+		sys.exit()
+	else:
+		main(sys.argv[1],int(sys.argv[2]))
