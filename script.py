@@ -69,7 +69,8 @@ def main(archivo,modeloAUtilizar):
 		pass
 	else:
 		print "Uso incorrecto, el segundo parametro deber ser 0 o 1."
-
+		print "Uso: python script.py pcapFile modeloAUtilizar(0/1)\nDonde modeloAUtilizar es 0 si no se distinguen los host y 1 en caso contrario. "
+		sys.exit()
 
 	probaPorSimbolo = dict((key, float(value)/totalDePaquetes) for (key,value) in contadorDeSimbolos.items())
 	informacionXSimbolo = informacionPorSimbolo(probaPorSimbolo)
@@ -95,7 +96,7 @@ def main(archivo,modeloAUtilizar):
 
 if __name__ == '__main__':
 	if len(sys.argv) != 3 :
-		print "Uso: python script.py pcapFile modeloAUtilizar(0/1)\n Donde modeloAUtilizar es 0 si no se distinguen los host y 1 en caso contrario. "
+		print "Uso: python script.py pcapFile modeloAUtilizar(0/1)\nDonde modeloAUtilizar es 0 si no se distinguen los host y 1 en caso contrario. "
 		sys.exit()
 	else:
 		main(sys.argv[1],int(sys.argv[2]))
