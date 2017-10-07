@@ -9,24 +9,6 @@ from tabulate import tabulate
 def esBroadcast(packet):
 	return packet.dst == "ff:ff:ff:ff:ff:ff"
 
-def pertenece(string, list):
-	for s in list:
-		if s == string:
-			return True
-
-	return False
-
-#¿Realmente hace falta usar esto? .-.
-def hacerTupla(first, second):
-	return (first,second)
-
-#Precondicion: simbolo pertenece a simbolos
-def indiceDeSimbolo(simbolo, simbolos):
-	for i in range(0,len(simbolos)) :
-		if simbolo == simbolos[i]:
-			return i
-
-#entran < proba, simbolo >
 def entropia( probaPorSimbolo ):
 	res = 0
 	for s,p in probaPorSimbolo.items():
@@ -50,7 +32,6 @@ def main(archivo,modeloAUtilizar):
 	unicastCount = 0
 	protocolos = set()
 	simbolosPosibles = set()
-	#horrible pero bue, 50 tienen que alcanzar
 	contadorDeSimbolos = {}
 	 
 	broadcast = "BROADCAST"
@@ -82,33 +63,30 @@ def main(archivo,modeloAUtilizar):
 				contadorDeSimbolos[simbolo] += 1
 			else:
 				contadorDeSimbolos[simbolo] = 1
-	else: 
-		pass	
+	elif (modeloAUtilizar == 1): 
+		
 		#TODO modelo que distingue por ARP.dst, creo que es solo filtrar los ARP y hacer: packet.payload.dst
+		pass
+	else:
+		print "Uso incorrecto, el segundo parametro deber ser 0 o 1."
+
 
 	probaPorSimbolo = dict((key, float(value)/totalDePaquetes) for (key,value) in contadorDeSimbolos.items())
-
+	informacionXSimbolo = informacionPorSimbolo(probaPorSimbolo)
+	entropiaMuestral = entropia(probaPorSimbolo)
+	entropiaMaxima = mat.log (len(contadorDeSimbolos),2)
+	
 	#No sé si los que tienen proba 0 tendrán que figurar o no... Decidamos (?)
 	
 	#Impresiones
 	print "Size de la muestra: " + str(totalDePaquetes)
 
-	informacionXSimbolo = informacionPorSimbolo(probaPorSimbolo)
-
-	entropiaMuestral = entropia(probaPorSimbolo)	
-	
 	print "Entropia muestral: "
 	print "\t\t",entropiaMuestral
 	print "Entropia Maxima: "
-	entropiaMaxima = mat.log (len(contadorDeSimbolos),2)
-
-	# for i in range(0, len(informacionXSimbolo)): 
-	# 	if informacionXSimbolo[i][1] > entropiaMaxima:
-	# 		entropiaMaxima = informacionXSimbolo[i][1]
 	
 	print "\t\t",entropiaMaxima
-	# Imprime tabla a partir de los datos de 
-	# una lista de listas:
+	
 	tabla = []
 	for s,p in probaPorSimbolo.items(): 
 		tabla.append([s,p,informacionXSimbolo[s]])
