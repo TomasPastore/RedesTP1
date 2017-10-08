@@ -78,9 +78,15 @@ def main(archivo,modeloAUtilizar):
 	entropiaMaxima = mat.log (len(contadorDeSimbolos),2)
 	
 	#No sé si los que tienen proba 0 tendrán que figurar o no... Decidamos (?)
-	
+
+	return (probaPorSimbolo,informacionXSimbolo,totalDePaquetes,broadcastCount,protocolos)
+
+def armarTabla(probabilidades,informaciones,cantidadDePaquetes,cantidadBroadcast,protocolos):
 	#Impresiones
-	print "Size de la muestra: " + str(totalDePaquetes)
+
+	entropiaMuestral = entropia(probabilidades)
+	entropiaMaxima = mat.log(len(probabilidades),2)
+	print "Size de la muestra: " + str(cantidadDePaquetes)
 
 	print "Entropia muestral: "
 	print "\t\t",entropiaMuestral
@@ -89,8 +95,8 @@ def main(archivo,modeloAUtilizar):
 	print "\t\t",entropiaMaxima
 	
 	tabla = []
-	for s,p in probaPorSimbolo.items(): 
-		tabla.append([s,p,informacionXSimbolo[s]])
+	for s,p in probabilidades.items(): 
+		tabla.append([s,p,informaciones[s]])
 	
 	print(tabulate(tabla, headers=['Simbolo', 'Probabilidad', 'Informacion']))
 
@@ -99,4 +105,4 @@ if __name__ == '__main__':
 		print "Uso: python script.py pcapFile modeloAUtilizar(0/1)\nDonde modeloAUtilizar es 0 si no se distinguen los host y 1 en caso contrario. "
 		sys.exit()
 	else:
-		main(sys.argv[1],int(sys.argv[2]))
+		armarTabla(*main(sys.argv[1],int(sys.argv[2])))
