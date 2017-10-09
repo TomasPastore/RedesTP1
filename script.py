@@ -79,7 +79,6 @@ def main(archivo,modeloAUtilizar):
 		totalDePaquetes = len(pcapFile)
 		
 		for packet in pcapFile:
-
 			primerComponente = ""
 			protocolo = packet.payload.name
 
@@ -100,6 +99,7 @@ def main(archivo,modeloAUtilizar):
 				contadorDeSimbolos[simbolo] += 1
 			else:
 				contadorDeSimbolos[simbolo] = 1
+	
 	elif (modeloAUtilizar == 1): 
 		
 		for packet in pcapFile:
@@ -124,8 +124,6 @@ def main(archivo,modeloAUtilizar):
 	informacionXSimbolo = informacionPorSimbolo(probaPorSimbolo)
 	entropiaMuestral = entropia(probaPorSimbolo)
 	entropiaMaxima = mat.log (len(contadorDeSimbolos),2)
-	
-	#No sé si los que tienen proba 0 tendrán que figurar o no... Decidamos (?)
 
 	return (probaPorSimbolo,informacionXSimbolo,totalDePaquetes,broadcastCount,protocolos)
 
