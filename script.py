@@ -149,7 +149,9 @@ def armarTabla(probabilidades,informaciones,cantidadDePaquetes,cantidadBroadcast
 	print "\t\t",entropiaMuestral
 	print "Entropia Maxima: "
 	print "\t\t",entropiaMaxima
-	
+	print "Porcentaje de tráfico broadcast: "
+	print "\t\t",str(float(cantidadBroadcast)/cantidadDePaquetes) + "%"
+
 	print " "
 
 	print "¿Desea ver un ranking de los simbolos distinguidos?(S/N)"
