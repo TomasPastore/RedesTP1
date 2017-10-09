@@ -154,8 +154,8 @@ def armar_grafico_comparador(filename,save,probabilidades,informaciones,cantidad
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	#Para cuando quiero debuggear... pero mejor sin default xD
-	parser.add_argument("filename", help="Archivo de destino",action='store',nargs='?', default='wiredlabo.pcap')
-	#parser.add_argument("filename", help="Archivo de la captura",action='store')
+	#parser.add_argument("filename", help="Archivo de destino",action='store',nargs='?', default='wiredlabo.pcap')
+	parser.add_argument("filename", help="Archivo de la captura",action='store')
 	parser.add_argument("--save",'-s', help="Guardar los gráficos (debe existir la carpeta graficos)",action='store_true',
 		default=False, dest='save')
 	args = parser.parse_args()
