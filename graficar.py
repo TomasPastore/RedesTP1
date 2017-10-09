@@ -41,10 +41,6 @@ def armar_pie_chart_por_protocolo(probabilidades,informaciones,cantidad_de_paque
 	protocolos = list(protocolos)
 	probas = []
 
-	print probabilidades.keys()
-	print probabilidades.values()
-	print sum(probabilidades.values())
-	
 	for p in protocolos:
 		cant_por_broadcast = 0
 		cant_por_unicast = 0
@@ -54,8 +50,6 @@ def armar_pie_chart_por_protocolo(probabilidades,informaciones,cantidad_de_paque
 			cant_por_unicast = probabilidades[("UNICAST",p)]
 		
 		probas.append(cant_por_broadcast+cant_por_unicast)
-
-	print sum(probas)
 
 	colors = []
 	iterador = cycle(tableau20)
@@ -71,7 +65,7 @@ def armar_pie_chart_por_protocolo(probabilidades,informaciones,cantidad_de_paque
 def armar_pie_chart_broadcast(probabilidades,informaciones,cantidad_de_paquetes,cantidad_broadcast,protocolos):
 	fig,ax = plt.subplots(figsize=(10,10))
 
-	labels = ['Paquetes unicast', 'Paquetes broadcast']
+	labels = ['Total', 'Paquetes broadcast']
 
 	colors = [tableau20[0],tableau20[1]]
 
@@ -85,7 +79,7 @@ def armar_pie_chart_broadcast(probabilidades,informaciones,cantidad_de_paquetes,
 def armar_grafico_comparador(probabilidades,informaciones,cantidad_de_paquetes,cantidad_broadcast,protocolos):
 	
 	fig, ax = plt.subplots(figsize=(20, 10))
-	ax.grid(True)
+	#ax.grid(True)
 
 	bar_width = 0.9
 	ind = np.arange(len(probabilidades))
