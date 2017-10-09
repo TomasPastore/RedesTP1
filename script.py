@@ -152,9 +152,19 @@ def armarTabla(probabilidades,informaciones,cantidadDePaquetes,cantidadBroadcast
 	
 	print " "
 
-	if int(sys.argv[2]) == 2 : 
-		rankearDistinguidosXInformacion(tabla)
-		#A mayor informacion menor probabilidad
+	print "¿Desea ver un ranking de los simbolos distinguidos?(S/N)"
+	respuesta = ""
+	while True:
+		respuesta = raw_input()
+
+		if respuesta == "S":
+			rankearDistinguidosXInformacion(tabla)
+			#A mayor informacion menor probabilidad
+			sys.exit()
+		elif respuesta == "N":
+			sys.exit()
+		else:
+			print "Entrada inválida."
 
 if __name__ == '__main__':
 	if len(sys.argv) != 3 or (int(sys.argv[2])!= 1 and int(sys.argv[2])!=2) :
@@ -162,5 +172,5 @@ if __name__ == '__main__':
 		sys.exit()
 	else:
 		armarTabla(*main(sys.argv[1],int(sys.argv[2])))
-
+		
 
