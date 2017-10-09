@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import script
 import math
 from itertools import cycle
+import argparse
 
 tableau20 = [(31, 119, 180), (174, 199, 232), (255, 127, 14), (255, 187, 120),  
 			 (44, 160, 44), (152, 223, 138), (214, 39, 40), (255, 152, 150),  
@@ -27,16 +28,16 @@ for i in range(len(tableau20blind)):
 	r, g, b = tableau20blind[i]  
 	tableau20blind[i] = (r / 255., g / 255., b / 255.)
 
-def main():
+def main(filename,save):
 
-	datos = script.main("wiredlabo.pcap",0)
-	armar_grafico_comparador(*datos)
-	armar_pie_chart_broadcast(*datos)
-	armar_pie_chart_por_protocolo(*datos)
+	datos = script.main(filename,0)
+	armar_grafico_comparador(filename,save,*datos)
+	armar_pie_chart_broadcast(filename,save,*datos)
+	armar_pie_chart_por_protocolo(filename,save,*datos)
 
 	plt.show()
 
-def armar_pie_chart_por_protocolo(probabilidades,informaciones,cantidad_de_paquetes,cantidad_broadcast,protocolos):
+def armar_pie_chart_por_protocolo(filename,save,probabilidades,informaciones,cantidad_de_paquetes,cantidad_broadcast,protocolos):
 	fig,ax = plt.subplots()
 	protocolos = list(protocolos)
 	probas = []
@@ -61,11 +62,14 @@ def armar_pie_chart_por_protocolo(probabilidades,informaciones,cantidad_de_paque
         labeldistance=1.1)
 	ax.axis('equal')
 
+	if save:
+		plt.savefig('graficos/'+filename.split('.')[0]+'_pie.pdf',bbox_inches='tight')
 
-def armar_pie_chart_broadcast(probabilidades,informaciones,cantidad_de_paquetes,cantidad_broadcast,protocolos):
+
+def armar_pie_chart_broadcast(filename,save,probabilidades,informaciones,cantidad_de_paquetes,cantidad_broadcast,protocolos):
 	fig,ax = plt.subplots(figsize=(10,10))
 
-	labels = ['Total', 'Paquetes broadcast']
+	labels = ['Paquetes Uni y multicast', 'Paquetes broadcast']
 
 	colors = [tableau20[0],tableau20[1]]
 
@@ -75,8 +79,12 @@ def armar_pie_chart_broadcast(probabilidades,informaciones,cantidad_de_paquetes,
         labeldistance=0.2)
 	ax.axis('equal')
 
+	if save:
+		plt.savefig('graficos/'+filename.split('.')[0]+'_pie_broadcast.pdf',bbox_inches='tight')
 
-def armar_grafico_comparador(probabilidades,informaciones,cantidad_de_paquetes,cantidad_broadcast,protocolos):
+
+
+def armar_grafico_comparador(filename,save,probabilidades,informaciones,cantidad_de_paquetes,cantidad_broadcast,protocolos):
 	
 	fig, ax = plt.subplots(figsize=(20, 10))
 	#ax.grid(True)
@@ -121,5 +129,17 @@ def armar_grafico_comparador(probabilidades,informaciones,cantidad_de_paquetes,c
 				clave,
 				ha='center', va='bottom')
 
+	if save:
+		plt.savefig('graficos/'+filename.split('.')[0]+'_info_entropia.pdf',bbox_inches='tight')
+
+
 if __name__ == '__main__':
-	main()
+	parser = argparse.ArgumentParser()
+	#Para cuando quiero debuggear... pero mejor sin default xD
+	#parser.add_argument("filename", help="Archivo de destino",action='store',nargs='?', default='wiredlabo.pcap')
+	parser.add_argument("filename", help="Archivo de la captura",action='store')
+	parser.add_argument("--save",'-s', help="Guardar los gráficos (debe existir la carpeta graficos)",action='store_true',
+		default=False, dest='save')
+	args = parser.parse_args()
+
+	main(args.filename,args.save)
