@@ -74,7 +74,7 @@ def main(archivo,modeloAUtilizar):
 
 	print "Analizando la fuente..."
 
-	if (modeloAUtilizar == 0):
+	if (modeloAUtilizar == 1):
 		
 		totalDePaquetes = len(pcapFile)
 		
@@ -100,7 +100,7 @@ def main(archivo,modeloAUtilizar):
 			else:
 				contadorDeSimbolos[simbolo] = 1
 	
-	elif (modeloAUtilizar == 1): 
+	elif (modeloAUtilizar == 2): 
 		
 		for packet in pcapFile:
 			
@@ -116,8 +116,9 @@ def main(archivo,modeloAUtilizar):
 					contadorDeSimbolos[simbolo] = 1
 		
 	else:
-		print "Uso incorrecto, el segundo parametro deber ser 0 o 1."
-		print "Uso: python script.py pcapFile modeloAUtilizar(0/1)\nDonde modeloAUtilizar es 0 si no se distinguen los host y 1 en caso contrario. "
+		#Esto en realidad no se ejecuta porque se chequea antes pero lo dejo por las dudas.
+		print "Uso incorrecto, el segundo parametro deber ser 1 o 2."
+		print "Uso: python script.py pcapFile modeloAUtilizar(1/2)\nDonde modeloAUtilizar es 1 si no se distinguen los host y 2 en caso contrario. "
 		sys.exit()
 
 	probaPorSimbolo = dict((key, float(value)/totalDePaquetes) for (key,value) in contadorDeSimbolos.items())
@@ -132,12 +133,8 @@ def armarTabla(probabilidades,informaciones,cantidadDePaquetes,cantidadBroadcast
 
 	entropiaMuestral = entropia(probabilidades)
 	entropiaMaxima = mat.log(len(probabilidades),2)
-	print "Size de la muestra: " + str(cantidadDePaquetes)
-
-	print "Entropia muestral: "
-	print "\t\t",entropiaMuestral
-	print "Entropia Maxima: "
-	print "\t\t",entropiaMaxima
+	print "\nSize de la muestra: " + str(cantidadDePaquetes)
+	print " "	
 	
 	tabla = []
 	for s,p in probabilidades.items(): 
@@ -148,13 +145,20 @@ def armarTabla(probabilidades,informaciones,cantidadDePaquetes,cantidadBroadcast
 
 	print(tabulate(tabla, headers=['Simbolo', 'Probabilidad', 'Informacion']))
 
-	if int(sys.argv[2]) == 1 : 
+	print "\nEntropia muestral: "
+	print "\t\t",entropiaMuestral
+	print "Entropia Maxima: "
+	print "\t\t",entropiaMaxima
+	
+	print " "
+
+	if int(sys.argv[2]) == 2 : 
 		rankearDistinguidosXInformacion(tabla)
 		#A mayor informacion menor probabilidad
 
 if __name__ == '__main__':
-	if len(sys.argv) != 3 :
-		print "Uso: python script.py pcapFile modeloAUtilizar(0/1)\nDonde modeloAUtilizar es 0 si no se distinguen los host y 1 en caso contrario. "
+	if len(sys.argv) != 3 or (int(sys.argv[2])!= 1 and int(sys.argv[2])!=2) :
+		print "Uso: python script.py pcapFile modeloAUtilizar(1/2)\nDonde modeloAUtilizar es 1 si no se distinguen los host y 2 en caso contrario. "
 		sys.exit()
 	else:
 		armarTabla(*main(sys.argv[1],int(sys.argv[2])))
