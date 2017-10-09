@@ -57,9 +57,20 @@ def armar_pie_chart_por_protocolo(filename,save,probabilidades,informaciones,can
 	for i in range(len(protocolos)):
 		colors.append(iterador.next())
 
-	ax.pie(probas,labels=protocolos, autopct='%1.1f%%',
-        startangle=90,colors=colors,
-        labeldistance=1.1)
+	patches, texts = ax.pie(probas,startangle=90,colors=colors)
+
+	labels = ['{0} - {1:1.2f} %'.format(i,j) for i,j in zip(protocolos, np.array(probas)*100.0)]
+
+	patches, labels, dummy =  zip(*sorted(zip(patches, labels, probas),
+                                          key=lambda x: x[2],
+                                          reverse=True))
+
+	plt.legend(patches, labels, loc='best',
+           fontsize=15)
+
+	for text in texts:
+		text.set_fontsize(15)
+
 	ax.axis('equal')
 
 	if save:
@@ -74,9 +85,17 @@ def armar_pie_chart_broadcast(filename,save,probabilidades,informaciones,cantida
 	colors = [tableau20[0],tableau20[1]]
 
 	sizes = [cantidad_de_paquetes-cantidad_broadcast,cantidad_broadcast]
-	ax.pie(sizes,labels=labels, autopct='%1.1f%%',
+	patches, texts, autotexts = ax.pie(sizes,labels=labels, autopct='%1.1f%%',
         startangle=90,colors=colors,
-        labeldistance=0.2)
+        labeldistance=0.2,
+        pctdistance=1.1)
+
+	for text in texts:
+		text.set_fontsize(15)
+
+	for text in autotexts:
+		text.set_fontsize(15)
+
 	ax.axis('equal')
 
 	if save:
@@ -101,7 +120,7 @@ def armar_grafico_comparador(filename,save,probabilidades,informaciones,cantidad
 		color='g',linewidth=1.7,label=u"Entropía máxima")
 
 	entropy = ax.axhline(y=script.entropia(probabilidades), xmin=0, xmax=len(probabilidades), 
-		color='red',linewidth=1.7,label=u'Entropía')
+		color='red',linewidth=1.7,label=u'Entropía muestral')
 
 	max_entropy.set_dashes(dashes)
 
@@ -116,7 +135,6 @@ def armar_grafico_comparador(filename,save,probabilidades,informaciones,cantidad
 	ax.set_yticks(np.arange(max(informaciones.values())+1))
 
 	ax.legend(fancybox=True,loc='best')
-
 
 	keys = informaciones.iterkeys()
 	colors = cycle(tableau20)
@@ -136,8 +154,8 @@ def armar_grafico_comparador(filename,save,probabilidades,informaciones,cantidad
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 	#Para cuando quiero debuggear... pero mejor sin default xD
-	#parser.add_argument("filename", help="Archivo de destino",action='store',nargs='?', default='wiredlabo.pcap')
-	parser.add_argument("filename", help="Archivo de la captura",action='store')
+	parser.add_argument("filename", help="Archivo de destino",action='store',nargs='?', default='wiredlabo.pcap')
+	#parser.add_argument("filename", help="Archivo de la captura",action='store')
 	parser.add_argument("--save",'-s', help="Guardar los gráficos (debe existir la carpeta graficos)",action='store_true',
 		default=False, dest='save')
 	args = parser.parse_args()
