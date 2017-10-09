@@ -65,7 +65,7 @@ def armar_pie_chart_por_protocolo(filename,save,probabilidades,informaciones,can
                                           key=lambda x: x[2],
                                           reverse=True))
 
-	plt.legend(patches, labels, loc='best',
+	ax.legend(patches, labels, loc='best',
            fontsize=15)
 
 	for text in texts:
@@ -87,7 +87,7 @@ def armar_pie_chart_broadcast(filename,save,probabilidades,informaciones,cantida
 	sizes = [cantidad_de_paquetes-cantidad_broadcast,cantidad_broadcast]
 	patches, texts, autotexts = ax.pie(sizes,labels=labels, autopct='%1.1f%%',
         startangle=90,colors=colors,
-        labeldistance=0.2,
+        labeldistance=1.18,
         pctdistance=1.1)
 
 	for text in texts:
