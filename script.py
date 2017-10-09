@@ -22,12 +22,47 @@ def informacionPorSimbolo(probaPorSimbolo):
 		res[simbolo] = informacion
 	return res
 
+#Formato: tabla[simbolo, probabilidad, informacion]
+def rankearDistinguidosXInformacion(tablaOrdenadaXInfo):
+
+	informacionesOrdenadas = []
+	for linea in tablaOrdenadaXInfo:
+		informacionesOrdenadas.append(linea[2])
+
+	p1 = np.percentile(informacionesOrdenadas, 25)
+	p3 = np.percentile(informacionesOrdenadas, 75)
+	distinguidosA = []
+	distinguidosB = []
+
+	for linea in tablaOrdenadaXInfo:
+		if linea[2]<= p1:
+			distinguidosA.append(linea[0])
+		elif linea[2]>= p3:
+			distinguidosB.insert(0, linea[0])	
+	
+	ranking = []
+	i = 0
+	while i < max(len(distinguidosA),len(distinguidosB)):
+
+		if i < len(distinguidosA) and i < len(distinguidosB):
+			ranking.append([distinguidosA[i], distinguidosB[i]])
+		elif i >= len(distinguidosA):
+			ranking.append(["-----------", distinguidosB[i]])
+		else:
+			ranking.append([distinguidosA[i],"-----------"])
+		i+=1
+
+	print "\nRanking de simbolos distinguidos segun la informacion que aportan acerca de la fuente..."
+	print "Distinguidos clase A: Simbolos cuya informacion se encuentra por debajo del primer percentil. A menor informacion, mas distinguido entre los de la clase A."
+	print "Distinguidos clase B: Simbolos cuya informacion se encuentra por encima del tercer percentil. A mayor informacion, mas distinguido entre los de la clase B.\n"
+	print(tabulate(ranking, headers=['Distinguidos clase A (de mas distinguido a menos distinguido)', 'Distinguidos clase B (de mas distinguido a menos distinguido)']))
+
 from scapy.all import *
 
 def main(archivo,modeloAUtilizar):
 	print "Leyendo archivo..."
 	pcapFile = rdpcap( archivo )
-	totalDePaquetes = len(pcapFile)
+	totalDePaquetes = 0
 	broadcastCount = 0
 	unicastCount = 0
 	protocolos = set()
@@ -40,7 +75,9 @@ def main(archivo,modeloAUtilizar):
 	print "Analizando la fuente..."
 
 	if (modeloAUtilizar == 0):
-
+		
+		totalDePaquetes = len(pcapFile)
+		
 		for packet in pcapFile:
 
 			primerComponente = ""
@@ -65,8 +102,19 @@ def main(archivo,modeloAUtilizar):
 				contadorDeSimbolos[simbolo] = 1
 	elif (modeloAUtilizar == 1): 
 		
-		#TODO modelo que distingue por ARP.dst, creo que es solo filtrar los ARP y hacer: packet.payload.dst
-		pass
+		for packet in pcapFile:
+			
+			if packet.payload.name == "ARP" and esBroadcast(packet):
+				
+				totalDePaquetes += 1
+				simbolo = packet.payload.pdst
+				simbolosPosibles.add(simbolo)
+			
+				if simbolo in contadorDeSimbolos:
+					contadorDeSimbolos[simbolo] += 1
+				else:
+					contadorDeSimbolos[simbolo] = 1
+		
 	else:
 		print "Uso incorrecto, el segundo parametro deber ser 0 o 1."
 		print "Uso: python script.py pcapFile modeloAUtilizar(0/1)\nDonde modeloAUtilizar es 0 si no se distinguen los host y 1 en caso contrario. "
@@ -91,14 +139,20 @@ def armarTabla(probabilidades,informaciones,cantidadDePaquetes,cantidadBroadcast
 	print "Entropia muestral: "
 	print "\t\t",entropiaMuestral
 	print "Entropia Maxima: "
-	
 	print "\t\t",entropiaMaxima
 	
 	tabla = []
 	for s,p in probabilidades.items(): 
 		tabla.append([s,p,informaciones[s]])
 	
+	#ordena por informacion de forma creciente
+	tabla.sort(key=lambda linea : linea[2], reverse = False)
+
 	print(tabulate(tabla, headers=['Simbolo', 'Probabilidad', 'Informacion']))
+
+	if int(sys.argv[2]) == 1 : 
+		rankearDistinguidosXInformacion(tabla)
+		#A mayor informacion menor probabilidad
 
 if __name__ == '__main__':
 	if len(sys.argv) != 3 :
@@ -106,3 +160,5 @@ if __name__ == '__main__':
 		sys.exit()
 	else:
 		armarTabla(*main(sys.argv[1],int(sys.argv[2])))
+
+
