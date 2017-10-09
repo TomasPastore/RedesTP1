@@ -74,7 +74,7 @@ def armar_pie_chart_por_protocolo(filename,save,probabilidades,informaciones,can
 	ax.axis('equal')
 
 	if save:
-		plt.savefig('graficos/'+filename.split('.')[0]+'_pie.pdf',bbox_inches='tight')
+		plt.savefig('graficos/'+filename.split('.')[0]+'_pie_s1.pdf',bbox_inches='tight')
 
 
 def armar_pie_chart_broadcast(filename,save,probabilidades,informaciones,cantidad_de_paquetes,cantidad_broadcast,protocolos):
@@ -99,7 +99,7 @@ def armar_pie_chart_broadcast(filename,save,probabilidades,informaciones,cantida
 	ax.axis('equal')
 
 	if save:
-		plt.savefig('graficos/'+filename.split('.')[0]+'_pie_broadcast.pdf',bbox_inches='tight')
+		plt.savefig('graficos/'+filename.split('.')[0]+'_pie_broadcast_s1.pdf',bbox_inches='tight')
 
 
 
@@ -148,7 +148,7 @@ def armar_grafico_comparador(filename,save,probabilidades,informaciones,cantidad
 				ha='center', va='bottom')
 
 	if save:
-		plt.savefig('graficos/'+filename.split('.')[0]+'_info_entropia.pdf',bbox_inches='tight')
+		plt.savefig('graficos/'+filename.split('.')[0]+'_info_entropia_s1.pdf',bbox_inches='tight')
 
 
 if __name__ == '__main__':
