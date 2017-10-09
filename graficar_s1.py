@@ -30,7 +30,7 @@ for i in range(len(tableau20blind)):
 
 def main(filename,save):
 
-	datos = script.main(filename,0)
+	datos = script.main(filename,1)
 	armar_grafico_comparador(filename,save,*datos)
 	armar_pie_chart_broadcast(filename,save,*datos)
 	armar_pie_chart_por_protocolo(filename,save,*datos)
