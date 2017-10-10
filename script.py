@@ -123,16 +123,16 @@ def main(archivo,modeloAUtilizar):
 
 	probaPorSimbolo = dict((key, float(value)/totalDePaquetes) for (key,value) in contadorDeSimbolos.items())
 	informacionXSimbolo = informacionPorSimbolo(probaPorSimbolo)
-	entropiaMuestral = entropia(probaPorSimbolo)
-	entropiaMaxima = mat.log (len(contadorDeSimbolos),2)
-
+	
 	return (probaPorSimbolo,informacionXSimbolo,totalDePaquetes,broadcastCount,protocolos)
 
 def armarTabla(probabilidades,informaciones,cantidadDePaquetes,cantidadBroadcast,protocolos):
 	#Impresiones
 
 	entropiaMuestral = entropia(probabilidades)
-	entropiaMaxima = mat.log(len(probabilidades),2)
+	entropiaMaxima = 0
+	if len(probabilidades) > 0:
+		entropiaMaxima = mat.log(len(probabilidades),2)
 	print "\nSize de la muestra: " + str(cantidadDePaquetes)
 	print " "	
 	
@@ -149,24 +149,27 @@ def armarTabla(probabilidades,informaciones,cantidadDePaquetes,cantidadBroadcast
 	print "\t\t",entropiaMuestral
 	print "Entropia Maxima: "
 	print "\t\t",entropiaMaxima
-	print "Porcentaje de tráfico broadcast: "
-	print "\t\t",str(float(cantidadBroadcast)/cantidadDePaquetes) + "%"
+	
+	if ( int(sys.argv[2] )==1):
+		print "Porcentaje de tráfico broadcast: "
+		print "\t\t",str(float(cantidadBroadcast)/cantidadDePaquetes) + "%"
 
 	print " "
 
-	print "¿Desea ver un ranking de los simbolos distinguidos?(S/N)"
-	respuesta = ""
-	while True:
-		respuesta = raw_input()
+	if(len(probabilidades)>0):
+		print "¿Desea ver un ranking de los simbolos distinguidos?(S/N)"
+		respuesta = ""
+		while True:
+			respuesta = raw_input()
 
-		if respuesta == "S":
-			rankearDistinguidosXInformacion(tabla)
-			#A mayor informacion menor probabilidad
-			sys.exit()
-		elif respuesta == "N":
-			sys.exit()
-		else:
-			print "Entrada inválida."
+			if respuesta == "S":
+				rankearDistinguidosXInformacion(tabla)
+				#A mayor informacion menor probabilidad
+				sys.exit()
+			elif respuesta == "N":
+				sys.exit()
+			else:
+				print "Entrada inválida."
 
 if __name__ == '__main__':
 	if len(sys.argv) != 3 or (int(sys.argv[2])!= 1 and int(sys.argv[2])!=2) :
